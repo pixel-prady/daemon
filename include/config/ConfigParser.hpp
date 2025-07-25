@@ -12,7 +12,6 @@ class ConfigParser{
 
         std :: string getString ( const std :: string & key , const std :: string default= "") ; 
         int getInt ( const std :: string & key , int default =0) ; 
-        bool getBool ( const std :: string & key , bool default = false) ;
         double getDouble ( const std :: string & key , double default = 0.0) ;
 
     private: 
