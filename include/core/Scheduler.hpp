@@ -21,7 +21,7 @@ class Scheduler {
     private : 
         std :: thread monitoringThread ;
         std :: atomic <bool> isMonitoring; 
-        bool isRunning ; 
+        bool taskRunning ; 
 
         void TaskLoop(std :: function <void() > task , std :: chrono:: milliseconds interval);
 };
