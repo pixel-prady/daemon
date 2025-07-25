@@ -11,7 +11,7 @@ class CPUIdleMonitor{
         bool isCPUIdle () ; 
 
     private : 
-        double IdleThereshold ; 
+        double IdleThreshold ;
         int IntervalMs ; 
 
         std :: pair <unsigned long long  , unsigned long long > readCPUStats() ; 

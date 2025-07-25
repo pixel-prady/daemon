@@ -6,7 +6,7 @@
 #include <utility>
 
 CPUIdleMonitor ::CPUIdleMonitor(double idleThreshold, int intervalMs)
-    : IdleThereshold(idleThreshold), IntervalMs(intervalMs) {}
+    : IdleThreshold(idleThreshold), IntervalMs(intervalMs) {}
 
 std ::pair<unsigned long long, unsigned long long> CPUIdleMonitor::readCPUStats()
 {
@@ -51,5 +51,5 @@ bool CPUIdleMonitor::isCPUIdle()
 
     double cpuUsagePercentage = ( 1.0-(double) idleTimeDiff / totalTimeDiff) * 100 ; 
 
-    return cpuUsagePercentage < IdleThereshold; 
+    return cpuUsagePercentage < IdleThreshold; 
 }
