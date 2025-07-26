@@ -1,20 +1,20 @@
-#include "core/Scheduler.hpp"
+#include "include/core/Scheduler.hpp"
 #include <iostream>
 
 Scheduler :: Scheduler()
     : isMonitoring(false),taskRunning(false) {}
 
 Scheduler :: ~Scheduler (){
-    StartMonitoring(); 
+    StopMonitoring(); 
 }
 
 
-void Scheduler :: StartMonitoring (std:: fucntion <void()>task , std :: chrono :: millisecond interval){
+void Scheduler :: StartMonitoring (std:: function <void()>task , std :: chrono :: milliseconds interval){
     if ( isMonitoring.load()){
         return; 
     }
 
-    isMonotoring.store(true) ; 
+    isMonitoring.store(true) ; 
     monitoringThread = std :: thread( & Scheduler :: TaskLoop, this, task, interval) ; 
 }
 
@@ -30,7 +30,7 @@ void Scheduler :: StopMonitoring () {
     }
 }
 
-void Scheduler :: taskLoop ( std :: fucntion <void ()> task , std :: chrono :: millisecond interval) { 
+void Scheduler :: TaskLoop ( std :: function <void ()> task , std :: chrono :: milliseconds interval) { 
     while ( isMonitoring.load () ) {
         if ( !taskRunning) { 
             taskRunning = true ;

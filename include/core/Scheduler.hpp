@@ -2,17 +2,16 @@
 #define SCHEDULER_HPP
 
 #include <chrono>
-#include <fucntional>
+#include <functional>
 #include <thread>
 #include <atomic>
-
 
 class Scheduler {
     public: 
         Scheduler(); 
         ~Scheduler(); 
 
-        void StartMonitoring ( std :: fucntion<void ()>task, std :: chrono :: millisecond interval); 
+        void StartMonitoring ( std :: function<void ()>task, std :: chrono :: milliseconds interval); 
 
         void StopMonitoring () ; 
 
