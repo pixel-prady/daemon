@@ -1,21 +1,21 @@
 #include "include/core/Scheduler.hpp"
 #include <iostream>
 
-Scheduler :: Scheduler()
-    : isMonitoring(false),taskRunning(false) {}
+Scheduler::Scheduler(double cpuIdleThreshold, std::chrono::milliseconds interval)
+    : isMonitoring(false), taskRunning(false), cpuIdleMonitor(cpuIdleThreshold),interval(interval) {}
 
 Scheduler :: ~Scheduler (){
     StopMonitoring(); 
 }
 
 
-void Scheduler :: StartMonitoring (std:: function <void()>task , std :: chrono :: milliseconds interval){
+void Scheduler :: StartMonitoring (std:: function <void()>task ){
     if ( isMonitoring.load()){
         return; 
     }
 
     isMonitoring.store(true) ; 
-    monitoringThread = std :: thread( & Scheduler :: TaskLoop, this, task, interval) ; 
+    monitoringThread = std :: thread( & Scheduler :: TaskLoop, this, task) ; 
 }
 
 void Scheduler :: StopMonitoring () { 
@@ -30,9 +30,9 @@ void Scheduler :: StopMonitoring () {
     }
 }
 
-void Scheduler :: TaskLoop ( std :: function <void ()> task , std :: chrono :: milliseconds interval) { 
+void Scheduler :: TaskLoop ( std :: function <void ()> task ) { 
     while ( isMonitoring.load () ) {
-        if ( !taskRunning) { 
+        if ( !taskRunning && cpuIdleMonitor.isCPUIdle()) { 
             taskRunning = true ;
             task(); 
             taskRunning = false; 

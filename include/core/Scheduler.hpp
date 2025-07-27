@@ -5,13 +5,14 @@
 #include <functional>
 #include <thread>
 #include <atomic>
+#include "core/CPUIdleMonitor.hpp"
 
 class Scheduler {
     public: 
-        Scheduler(); 
+        Scheduler(double cpuIdleThreshold = 15.0, std::chrono::milliseconds interval = std::chrono::milliseconds(1000)); 
         ~Scheduler(); 
 
-        void StartMonitoring ( std :: function<void ()>task, std :: chrono :: milliseconds interval); 
+        void StartMonitoring ( std :: function<void ()>task); 
 
         void StopMonitoring () ; 
 
@@ -22,7 +23,10 @@ class Scheduler {
         std :: atomic <bool> isMonitoring; 
         bool taskRunning ; 
 
-        void TaskLoop(std :: function <void() > task , std :: chrono:: milliseconds interval);
+        CPUIdleMonitor cpuIdleMonitor ;
+        std :: chrono::milliseconds interval ;
+
+        void TaskLoop(std :: function <void() > task);
 };
 
 #endif 

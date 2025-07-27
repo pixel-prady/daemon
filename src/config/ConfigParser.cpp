@@ -4,7 +4,7 @@
 #include <yaml-cpp/yaml.h>
 
 ConfigParser::ConfigParser(const std::string &path)
-    : filePath(path) {}
+    : filepath(path) {}
 
 bool ConfigParser ::loadConfig()
 {
@@ -17,14 +17,17 @@ std ::unordered_map<std ::string, std ::pair<std ::string, std ::vector<std ::st
     try
     {
         YAML ::Node config = YAML::LoadFile(filepath);
-        YAML ::Node folderConfig = config["folders"];
-        for (YAML ::yaml_iterator itr = folderConfig.begin(); itd != folderConfig.end(); itr++)
+        if (config["folders"])
         {
-            std ::string category = itr->first.as<std ::string>();
-            std ::string path = itr->second["path"].as<std ::string>();
-            std ::vector<std ::string> extensions = itr->second["extensions"].as<std ::vector<std ::string>>();
+            YAML ::Node folderConfig = config["folders"];
+            for (YAML::const_iterator itr = folderConfig.begin(); itr != folderConfig.end(); ++itr)
+            {
+                std::string category = itr->first.as<std::string>();
+                std::string path = itr->second["path"].as<std::string>();
+                std::vector<std::string> extensions = itr->second["extensions"].as<std::vector<std::string>>();
 
-            folders[category] = {path, extensions};
+                folders[category] = {path, extensions};
+            }
         }
 
         return folders;
@@ -40,7 +43,7 @@ bool ConfigParser ::parseYaml()
     try
     {
         YAML::Node config = YAML::LoadFile(filepath);
-        if (config["cpu_idle_thershold"])
+        if (config["cpu_idle_threshold"])
         {
             configData["cpu_idle_threshold"] = config["cpu_idle_threshold"].as<std::string>();
         }
@@ -58,17 +61,17 @@ bool ConfigParser ::parseYaml()
     }
 }
 
-std::string ConfigParser::getString(const std::string &key, const std::string &default)
+std::string ConfigParser::getString(const std::string &key, const std::string &defaultValue)
 {
-    return configData.count(key) ? configData[key] : default;
+    return configData.count(key) ? configData[key] : defaultValue;
 }
 
-int ConfigParser::getInt(const std::string &key, int default)
+int ConfigParser::getInt(const std::string &key, int defaultValue)
 {
-    return configData.count(key) ? std::stoi(configData[key]) : default;
+    return configData.count(key) ? std::stoi(configData[key]) : defaultValue;
 }
 
-double ConfigParser::getDouble(const std::string &key, double default)
+double ConfigParser::getDouble(const std::string &key, double defaultValue)
 {
-    return configData.count(key) ? std::stod(configData[key]) : default;
+    return configData.count(key) ? std::stod(configData[key]) : defaultValue;
 }

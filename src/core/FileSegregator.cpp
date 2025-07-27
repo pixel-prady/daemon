@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iostream>
 #include <unordered_map>
+#include <algorithm>
 #include "FileSegregator.hpp"
 
 FileSegregator::FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders)
