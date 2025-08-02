@@ -15,6 +15,7 @@ public:
     std ::string getString(const std ::string &key, const std ::string &defaultValue = "");
     int getInt(const std ::string &key, int defaultValue = 0);
     double getDouble(const std ::string &key, double defaultValue = 0.0);
+    bool getBool( const std :: string &key, bool defaultValue = false) ; 
 
 private:
     std ::string filepath;

@@ -14,6 +14,8 @@ public:
 
     void SegregateFile(const std::string &filePath);
 
+    void SegregateExistingFiles (const std::string &dirPath,bool value) ; 
+
 private:
     void MoveFileToCategory(const std::string &filePath, const std::string &category);
 

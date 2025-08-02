@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
+#include "ConfigParser.hpp"
 
 ConfigParser::ConfigParser(const std::string &path)
     : filepath(path) {}
@@ -51,6 +52,10 @@ bool ConfigParser ::parseYaml()
         {
             configData["watch_path"] = config["watch_path"].as<std::string>();
         }
+        if (config["segregate_existing_files"])
+        {
+            segregateExistingFiles = config["segregate_existing_files"].as<bool>();
+        }
 
         return true;
     }
@@ -74,4 +79,9 @@ int ConfigParser::getInt(const std::string &key, int defaultValue)
 double ConfigParser::getDouble(const std::string &key, double defaultValue)
 {
     return configData.count(key) ? std::stod(configData[key]) : defaultValue;
+}
+
+bool ConfigParser::getBool(const std::string &key, bool defaultValue)
+{
+    return configData.count(key) ? stringToBool(configData[key]) : defaultValue;
 }

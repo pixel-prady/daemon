@@ -40,6 +40,29 @@ void FileSegregator ::SegregateFile(const std ::string &filePath)
     MoveFileToCategory(filePath, destinationFolder);
 }
 
+void FileSegregator::SegregateExistingFiles(const std::string &dirPath,bool value)
+{
+    if (value)
+    {
+        try
+        {
+            for (const auto &file : std::filesystem::recursive_directory_iterator(dirPath))
+            {
+                if (file.is_regular_file())
+                {
+                    Logger::logInfo("Processing existing file: " + file.path().string());
+
+                    SegregateFile(file.path().string());
+                }
+            }
+        }
+        catch (const std::exception &e)
+        {
+            Logger::logError("Error processing existing files: " + std::string(e.what()));
+        }
+    }
+}
+
 void FileSegregator::MoveFileToCategory(const std::string &filePath, const std::string &folderPath)
 {
 
@@ -73,7 +96,6 @@ std::string FileSegregator::GetFileCategory(const std::string &filePath)
 
     return "";
 }
-
 
 void FileSegregator::CreateDirectoryIfNotExists(const std::string &dirPath)
 {

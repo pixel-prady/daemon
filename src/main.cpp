@@ -7,18 +7,18 @@
 #include <set>
 #include <mutex>
 
+std ::set<std ::string> changedFiles;
+std ::mutex filemutex;
 
-std :: set <std :: string> changedFiles ;
-std :: mutex filemutex ; 
-
-void addChangedFile(const std :: string & filePath) { 
-    std :: lock_guard<std :: mutex> lock(filemutex);
+void addChangedFile(const std ::string &filePath)
+{
+    std ::lock_guard<std ::mutex> lock(filemutex);
     changedFiles.insert(filePath);
 }
 
 void segregateFilesIfIdle(FileSegregator &fileSegregator)
 {
-    std :: lock_guard<std :: mutex> lock(filemutex);
+    std ::lock_guard<std ::mutex> lock(filemutex);
     for (const auto &filePath : changedFiles)
     {
         fileSegregator.SegregateFile(filePath);
@@ -44,15 +44,21 @@ void runAutoSortDaemon()
     FileWatcher fileWatcher(watchPath); // recursive watching disabled by default ( baadme test karunga ) ;
 
     fileWatcher.StartWatching([&fileSegregator](const std::string &filePath, const std::string &event)
-        {
+                              {
             Logger::logInfo("File event detected: " + event + " - " + filePath);
-            addChangedFile(filePath);
-        }
-    );
+            addChangedFile(filePath); });
 
-    Scheduler scheduler(config.getDouble("cpu_idle_threshold", 15.0),std::chrono::milliseconds(config.getInt("monitoring_interval", 1000)));
+    Scheduler scheduler(config.getDouble("cpu_idle_threshold", 15.0), std::chrono::milliseconds(config.getInt("monitoring_interval", 1000)));
+
+    bool checkExistingFile = true;
 
     scheduler.StartMonitoring([&fileSegregator](){
+
+        if ( checkExistingFile){
+            fileSegregator.SegregateExistingFiles(watchPath,config.getBool("segregate_existing_files",false)) ; 
+            checkExistingFile = false ; 
+        }
+
         if (!changedFiles.empty()){
             std :: lock_guard<std :: mutex > lock (filemutex) ;
 
@@ -62,24 +68,24 @@ void runAutoSortDaemon()
             }
 
             changedFiles.clear() ; 
-        }
-    }) ; 
+        } });
 
-    std :: cout << "AutoSort is running "<<std :: endl; 
+    std ::cout << "AutoSort is running " << std ::endl;
 
-    while ( true){
-        std :: this_thread :: sleep_for(std :: chrono :: seconds(1)) ; 
+    while (true)
+    {
+        std ::this_thread ::sleep_for(std ::chrono ::seconds(1));
     }
 }
 
-int main() { 
+int main()
+{
     try
     {
-        runAutoSortDaemon() ;
+        runAutoSortDaemon();
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
-        Logger :: logError( "Error : " + std :: string(e.what())) ; 
+        Logger ::logError("Error : " + std ::string(e.what()));
     }
-    
 }

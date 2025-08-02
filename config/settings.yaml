@@ -2,7 +2,7 @@
 
 # cpu_idle_threshold: "15"
 # watch_path: "/home/user/Downloads"
-
+# segregate_existing_files: true
 # folders:
 #   Images:
 #     path: "/home/user/Pictures"
