@@ -1,3 +1,4 @@
 cpuidle_test
 .vscode/
 .idea/
+build/
