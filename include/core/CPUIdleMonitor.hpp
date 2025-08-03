@@ -14,8 +14,8 @@ class CPUIdleMonitor{
         double IdleThreshold ;
         int IntervalMs ; 
 
-        std :: pair <unsigned long long  , unsigned long long > readCPUStats() ; 
-
+        virtual  std :: pair <unsigned long long  , unsigned long long > readCPUStats() ; 
+        friend class  MockCPUIdleMonitor ; // for testing 
 };
 
 # endif 
