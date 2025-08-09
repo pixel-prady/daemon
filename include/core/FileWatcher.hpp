@@ -16,7 +16,7 @@
 class FileWatcher
 {
 public:
-    explicit FileWatcher(const std::string &watchDir, bool recursive = false,Logger*logger);
+    explicit FileWatcher(const std::string &watchDir, bool recursive,Logger*logger);
 
     ~FileWatcher(); // to destruct the thread and the inotify instance, created
 

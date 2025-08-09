@@ -1,3 +1,6 @@
 .vscode
 /googletest
 /build
+/dummyfile
+/watchfolder
+/dummyfolder

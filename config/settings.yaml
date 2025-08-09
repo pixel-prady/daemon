@@ -1,12 +1,16 @@
-# dummy conf for reference to create the parser 
+cpu_idle_threshold: 60
+watch_path: "/home/zeus/Videos/AutoSortDaemon/watchfolder"
+segregate_existing_files: true
 
-# cpu_idle_threshold: "15"
-# watch_path: "/home/user/Downloads"
-# segregate_existing_files: true
-# folders:
-#   Images:
-#     path: "/home/user/Pictures"
-#     extensions: [".jpg", ".jpeg", ".png", ".gif"]
-#   Documents:
-#     path: "/home/user/Documents"
-#     extensions: [".pdf", ".txt", ".docx"]
+folders:
+  Images:
+    path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummyimage"
+    extensions: [".jpg", ".jpeg", ".png", ".gif"]
+
+  Videos:
+    path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummyvideo"
+    extensions: [".mp4", ".avi", ".mov", ".mkv"]
+
+  Uncategorized:
+    path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummyUncategorized"
+    extensions: []
