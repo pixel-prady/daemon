@@ -22,8 +22,8 @@ target_link_libraries(cpuidle_test
 target_link_libraries(fileseg_test
     ${GTEST_LIB_DIR}/libgtest.a
     ${GTEST_LIB_DIR}/libgtest_main.a
-    ${GTEST_LIB_DIR}/libgmock.a       # << Add this line
-    ${GTEST_LIB_DIR}/libgmock_main.a  # << And this line
+    ${GTEST_LIB_DIR}/libgmock.a     
+    ${GTEST_LIB_DIR}/libgmock_main.a  
     pthread
 )
 
