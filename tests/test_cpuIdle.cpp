@@ -1,6 +1,6 @@
-#include "../googletest/googletest/include/gtest/gtest.h"
-#include "../googletest/googlemock/include/gmock/gmock.h"
-#include "core/CPUIdleMonitor.hpp"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "CPUIdleMonitor.hpp"
 
 class MockCPUIdleMonitor : public CPUIdleMonitor {
 public:

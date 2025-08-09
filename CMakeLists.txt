@@ -7,13 +7,15 @@ set(GTEST_DIR ${PROJECT_SOURCE_DIR}/googletest)
 set(GTEST_LIB_DIR "${GTEST_DIR}/build/lib")
 
 include_directories(
-    ${GTEST_DIR}/googletest/include
-    ${GTEST_DIR}/googlemock/include
+    ${PROJECT_SOURCE_DIR}/include         
+    ${PROJECT_SOURCE_DIR}/include/core    
+    ${PROJECT_SOURCE_DIR}/include/core/utils 
+    ${PROJECT_SOURCE_DIR}/include/config 
+    ${PROJECT_SOURCE_DIR}/googletest/googletest/include  
+    ${PROJECT_SOURCE_DIR}/googletest/googlemock/include  
+    ${PROJECT_SOURCE_DIR}/tests          
 )
-
 include_directories(${PROJECT_SOURCE_DIR}/include)
 link_directories(${GTEST_LIB_DIR}) 
 
-
 add_subdirectory(tests)
-

@@ -11,11 +11,12 @@
 #include <atomic>
 #include <unordered_map>
 #include <sys/inotify.h>
+#include "Logger.hpp"
 
 class FileWatcher
 {
 public:
-    explicit FileWatcher(const std::string &watchDir, bool recursive = false);
+    explicit FileWatcher(const std::string &watchDir, bool recursive = false,Logger*logger);
 
     ~FileWatcher(); // to destruct the thread and the inotify instance, created
 
@@ -33,5 +34,6 @@ private:
 
     void watchLoop(std ::function<void(const std ::string &, const std ::string &)> callback);
     void addWatchRecursively(const std ::string &path);
+    Logger * logger ;
 };
 #endif

@@ -1,5 +1,5 @@
-#include "core/utils/Logger.hpp"
-#include "core/FileWatcher.hpp"
+#include "Logger.hpp"
+#include "FileWatcher.hpp"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -12,8 +12,8 @@
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUFFER_LEN (1024 * (EVENT_SIZE + 16))
 
-FileWatcher::FileWatcher(const std::string &dir, bool recursive)
-    : watchDir(dir), recursive(recursive), inotifyFd(-1), watching(false) {}
+FileWatcher::FileWatcher(const std::string &dir, bool recursive, Logger *loggerInstance)
+    : watchDir(dir), recursive(recursive), inotifyFd(-1), watching(false), logger(loggerInstance) {}
 
 FileWatcher::~FileWatcher()
 {
@@ -28,7 +28,7 @@ void FileWatcher::StartWatching(std::function<void(const std::string &, const st
     inotifyFd = inotify_init1(IN_NONBLOCK);
     if (inotifyFd < 0)
     {
-        Logger::logError("FAILED TO INITIALIZE INOTIFY");
+        logger->logError("FAILED TO INITIALIZE INOTIFY");
         return;
     }
 
@@ -36,10 +36,10 @@ void FileWatcher::StartWatching(std::function<void(const std::string &, const st
     watching.store(true);
 
     watchThread = std::thread(&FileWatcher::watchLoop, this, onFileChange);
-    Logger::logInfo("Started file watching on: " + watchDir);
+    logger->logInfo("Started file watching on: " + watchDir);
 }
 
-void FileWatcher ::StopWatching()
+void FileWatcher::StopWatching()
 {
     if (!watching.load())
         return;
@@ -50,11 +50,11 @@ void FileWatcher ::StopWatching()
     if (inotifyFd >= 0)
     {
         close(inotifyFd);
-        Logger::logInfo("STOPPED WATCHING FILE" + watchDir);
+        logger->logInfo("STOPPED WATCHING FILE " + watchDir);
     }
 }
 
-void FileWatcher ::watchLoop(std ::function<void(const std ::string &, const std ::string &)> callback)
+void FileWatcher::watchLoop(std::function<void(const std::string &, const std::string &)> callback)
 {
     char buffer[EVENT_BUFFER_LEN];
 
@@ -69,12 +69,12 @@ void FileWatcher ::watchLoop(std ::function<void(const std ::string &, const std
         {
             struct inotify_event *event = (struct inotify_event *)&buffer[i];
 
-            std ::string dirPath = wdToPath[event->wd];
-            std ::string fullPath = dirPath + "/" + std ::string(event->name);
+            std::string dirPath = wdToPath[event->wd];
+            std::string fullPath = dirPath + "/" + std::string(event->name);
 
             if (event->mask & IN_CREATE)
             {
-                Logger::logInfo("File created: " + fullPath);
+                logger->logInfo("File created: " + fullPath);
                 if (event->mask & IN_ISDIR && recursive)
                 {
                     addWatchRecursively(fullPath);
@@ -83,12 +83,12 @@ void FileWatcher ::watchLoop(std ::function<void(const std ::string &, const std
             }
             else if (event->mask & IN_MODIFY)
             {
-                Logger::logInfo("File modified: " + fullPath);
+                logger->logInfo("File modified: " + fullPath);
                 callback(fullPath, "modified");
             }
             else if (event->mask & IN_DELETE)
             {
-                Logger::logWarning("File deleted: " + fullPath);
+                logger->logWarning("File deleted: " + fullPath);
                 callback(fullPath, "deleted");
             }
 
@@ -97,23 +97,23 @@ void FileWatcher ::watchLoop(std ::function<void(const std ::string &, const std
     }
 }
 
-void FileWatcher ::addWatchRecursively(const std ::string &path)
+void FileWatcher::addWatchRecursively(const std::string &path)
 {
     struct stat st;
     if (stat(path.c_str(), &st) != 0 || !S_ISDIR(st.st_mode))
     {
-        Logger::logError("Invalid directory: " + path);
+        logger->logError("Invalid directory: " + path);
         return;
     }
 
     int wd = inotify_add_watch(inotifyFd, path.c_str(), IN_CREATE | IN_MODIFY | IN_DELETE);
     if (wd < 0)
     {
-        Logger::logError("Failed to add inotify watch for: " + path);
+        logger->logError("Failed to add inotify watch for: " + path);
         return;
     }
     wdToPath[wd] = path;
-    Logger::logInfo("Watching directory: " + path);
+    logger->logInfo("Watching directory: " + path);
 
     if (!recursive)
         return;

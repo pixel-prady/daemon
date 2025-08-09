@@ -1,16 +1,14 @@
-#include "core/FileSegregator.hpp"
-#include "core/utils/Logger.hpp"
+#include "FileSegregator.hpp"
+#include "Logger.hpp"
 
 #include <filesystem>
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
-#include "FileSegregator.hpp"
 
-FileSegregator::FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders)
-    : categoryToFolder(customFolders)
+FileSegregator::FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders, Logger* loggerInstance)
+    : categoryToFolder(customFolders), logger(loggerInstance)
 {
-
     defaultFolders = {
         {"Images", "./Images"},
         {"Documents", "./Documents"},
@@ -20,27 +18,26 @@ FileSegregator::FileSegregator(const std::unordered_map<std::string, std::pair<s
         {"PDFs", "./PDFs"},
         {"PPTs", "./PPTs"},
         {"Uncategorized", "./Uncategorized"},
-
     };
 }
 
 FileSegregator::~FileSegregator() {}
 
-void FileSegregator ::SegregateFile(const std ::string &filePath)
+void FileSegregator::SegregateFile(const std::string &filePath)
 {
-    std ::string category = GetFileCategory(filePath);
+    std::string category = GetFileCategory(filePath);
 
     if (category.empty())
     {
         category = "Uncategorized";
-        Logger::logWarning("No category found for file: " + filePath + ". Moving to Uncategorized.");
+        logger->logWarning("No category found for file: " + filePath + ". Moving to Uncategorized.");
     }
 
     std::string destinationFolder = categoryToFolder.count(category) > 0 ? categoryToFolder[category].first : defaultFolders[category];
     MoveFileToCategory(filePath, destinationFolder);
 }
 
-void FileSegregator::SegregateExistingFiles(const std::string &dirPath,bool value)
+void FileSegregator::SegregateExistingFiles(const std::string &dirPath, bool value)
 {
     if (value)
     {
@@ -50,33 +47,31 @@ void FileSegregator::SegregateExistingFiles(const std::string &dirPath,bool valu
             {
                 if (file.is_regular_file())
                 {
-                    Logger::logInfo("Processing existing file: " + file.path().string());
-
+                    logger->logInfo("Processing existing file: " + file.path().string());
                     SegregateFile(file.path().string());
                 }
             }
         }
         catch (const std::exception &e)
         {
-            Logger::logError("Error processing existing files: " + std::string(e.what()));
+            logger->logError("Error processing existing files: " + std::string(e.what()));
         }
     }
 }
 
 void FileSegregator::MoveFileToCategory(const std::string &filePath, const std::string &folderPath)
 {
-
     CreateDirectoryIfNotExists(folderPath);
 
     std::filesystem::path destPath = folderPath / std::filesystem::path(filePath).filename();
     try
     {
         std::filesystem::rename(filePath, destPath);
-        Logger::logInfo("Moved file " + filePath + " to " + folderPath);
+        logger->logInfo("Moved file " + filePath + " to " + folderPath);
     }
     catch (const std::exception &e)
     {
-        Logger::logError("Failed to move file " + filePath + ": " + e.what());
+        logger->logError("Failed to move file " + filePath + ": " + e.what());
     }
 }
 
@@ -104,11 +99,11 @@ void FileSegregator::CreateDirectoryIfNotExists(const std::string &dirPath)
         try
         {
             std::filesystem::create_directory(dirPath);
-            Logger::logInfo("Created directory: " + dirPath);
+            logger->logInfo("Created directory: " + dirPath);
         }
         catch (const std::exception &e)
         {
-            Logger::logError("Failed to create directory " + dirPath + ": " + e.what());
+            logger->logError("Failed to create directory " + dirPath + ": " + e.what());
         }
     }
 }

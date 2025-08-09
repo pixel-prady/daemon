@@ -1,4 +1,4 @@
-#include "core/CPUIdleMonitor.hpp"
+#include "CPUIdleMonitor.hpp"
 
 #include <string>
 #include <fstream>

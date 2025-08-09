@@ -4,30 +4,35 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "Logger.hpp"
 
 class FileSegregator
 {
 public:
-    FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders);
+    FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders,Logger * logger);
 
     ~FileSegregator();
 
-    void SegregateFile(const std::string &filePath);
+    virtual void SegregateFile(const std::string &filePath);
 
     void SegregateExistingFiles (const std::string &dirPath,bool value) ; 
 
-private:
-    void MoveFileToCategory(const std::string &filePath, const std::string &category);
+
+
+    virtual void  MoveFileToCategory(const std::string &filePath, const std::string &category);
 
     std::string GetFileCategory(const std::string &filePath);
 
-    bool IsDirectory(const std::string &path);
+    virtual bool IsDirectory(const std::string &path);
 
-    void CreateDirectoryIfNotExists(const std::string &dirPath);
+    virtual void CreateDirectoryIfNotExists(const std::string &dirPath);
 
     std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> categoryToFolder;
 
     std::unordered_map<std::string, std::string> defaultFolders;
+
+    Logger * logger; 
+
 };
 
 #endif 

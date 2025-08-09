@@ -16,7 +16,7 @@ class Scheduler {
 
         void StopMonitoring () ; 
 
-        void StopTask() ; 
+        // void StopTask() ; 
 
     private : 
         std :: thread monitoringThread ;
@@ -27,6 +27,7 @@ class Scheduler {
         std :: chrono::milliseconds interval ;
 
         void TaskLoop(std :: function <void() > task);
+        friend class SchedulerTest ;
 };
 
 #endif 

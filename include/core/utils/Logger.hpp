@@ -5,9 +5,11 @@ class Logger {
 
     public : 
 
-        static void logInfo(const std :: string & message ) ; 
-        static void logWarning ( const std :: string & message  ) ; 
-        static void logError( const std :: string & message ) ; 
+        virtual void logInfo(const std :: string & message ) ; 
+        virtual void logWarning ( const std :: string & message  ) ; 
+        virtual void logError( const std :: string & message ) ; 
+        
+        virtual ~Logger() = default; 
 } ; 
 
 #endif 

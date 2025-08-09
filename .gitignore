@@ -1,6 +1,3 @@
-cpuidle_test
-.vscode/
-.idea/
-build/
-googletest
-
+.vscode
+/googletest
+/build

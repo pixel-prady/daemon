@@ -8,7 +8,7 @@ class CPUIdleMonitor{
     public : 
         explicit CPUIdleMonitor (double idleThreshold  = 15.0, int intervalMs = 1000); 
 
-        bool isCPUIdle () ; 
+        virtual bool isCPUIdle () ; 
 
     private : 
         double IdleThreshold ;

@@ -1,4 +1,4 @@
-#include "include/core/Scheduler.hpp"
+#include "Scheduler.hpp"
 #include <iostream>
 
 Scheduler::Scheduler(double cpuIdleThreshold, std::chrono::milliseconds interval)

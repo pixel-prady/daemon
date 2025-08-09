@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "config/ConfigParser.hpp"
+#include "ConfigParser.hpp"
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
