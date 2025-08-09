@@ -61,8 +61,20 @@ void FileWatcher::watchLoop(std::function<void(const std::string &, const std::s
     while (watching.load())
     {
         int length = read(inotifyFd, buffer, EVENT_BUFFER_LEN);
+
         if (length < 0)
-            continue;
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                continue;
+            }
+            else
+            {
+                logger->logError("Error reading inotify: " + std::string(strerror(errno)));
+                break;
+            }
+        }
 
         int i = 0;
         while (i < length)
@@ -72,19 +84,27 @@ void FileWatcher::watchLoop(std::function<void(const std::string &, const std::s
             std::string dirPath = wdToPath[event->wd];
             std::string fullPath = dirPath + "/" + std::string(event->name);
 
-            if (event->mask & IN_CREATE)
+            if (event->mask & IN_CLOSE_WRITE)
+            {
+                logger->logInfo("File finished writing: " + fullPath);
+                callback(fullPath, "finished_write");
+            }
+            else if (event->mask & IN_MOVED_TO)
+            {
+                logger->logInfo("File moved in: " + fullPath);
+                callback(fullPath, "moved_in");
+            }
+            else if (event->mask & IN_CREATE)
             {
                 logger->logInfo("File created: " + fullPath);
                 if (event->mask & IN_ISDIR && recursive)
                 {
                     addWatchRecursively(fullPath);
                 }
-                callback(fullPath, "created");
             }
             else if (event->mask & IN_MODIFY)
             {
                 logger->logInfo("File modified: " + fullPath);
-                callback(fullPath, "modified");
             }
             else if (event->mask & IN_DELETE)
             {
@@ -96,7 +116,6 @@ void FileWatcher::watchLoop(std::function<void(const std::string &, const std::s
         }
     }
 }
-
 void FileWatcher::addWatchRecursively(const std::string &path)
 {
     struct stat st;
@@ -106,7 +125,7 @@ void FileWatcher::addWatchRecursively(const std::string &path)
         return;
     }
 
-    int wd = inotify_add_watch(inotifyFd, path.c_str(), IN_CREATE | IN_MODIFY | IN_DELETE);
+    int wd = inotify_add_watch(inotifyFd, path.c_str(), IN_CREATE | IN_MODIFY | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO | IN_CLOSE_WRITE);
     if (wd < 0)
     {
         logger->logError("Failed to add inotify watch for: " + path);

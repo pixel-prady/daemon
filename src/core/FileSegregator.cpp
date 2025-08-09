@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-FileSegregator::FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders, Logger* loggerInstance)
+FileSegregator::FileSegregator(const std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> &customFolders, Logger *loggerInstance)
     : categoryToFolder(customFolders), logger(loggerInstance)
 {
     defaultFolders = {
@@ -77,7 +77,17 @@ void FileSegregator::MoveFileToCategory(const std::string &filePath, const std::
 
 std::string FileSegregator::GetFileCategory(const std::string &filePath)
 {
+    auto toLower = [](const std::string &str)
+    {
+        std::string lowerStr = str;
+        std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+                       [](unsigned char c)
+                       { return std::tolower(c); });
+        return lowerStr;
+    };
+
     std::string extension = std::filesystem::path(filePath).extension().string();
+    extension = toLower(extension);
 
     for (const auto &category : categoryToFolder)
     {
