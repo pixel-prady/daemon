@@ -4,4 +4,58 @@
 /dummyfile
 /watchfolder
 /dummyfolder
+# Build directories
+build/
+build-*/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Google Test build artifacts
+googletest/
+gtest/
+gmock/
+
+# Executables and libraries
+*.out
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Object files
+*.o
+*.obj
+
+# Debug and profile files
+*.pdb
+*.idb
+*.gcda
+*.gcno
+*.gcov
+*.prof
+*.profraw
+
+# Logs
+*.log
+
+# Editor/IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS files
+.DS_Store
+
+# Windows specific
+Thumbs.db
+
 
