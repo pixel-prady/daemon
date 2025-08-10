@@ -1,15 +1,18 @@
-cpu_idle_threshold: 60
+cpu_idle_threshold: 25
 watch_path: "/home/zeus/Videos/AutoSortDaemon/watchfolder"
 segregate_existing_files: true
 
 folders:
   Images:
     path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummyimage"
-    extensions: [".jpg", ".jpeg", ".png", ".gif"]
+    extensions: [".jpg", ".jpeg", ".png", ".gif",".svg"]
 
   Videos:
     path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummyvideo"
     extensions: [".mp4", ".avi", ".mov", ".mkv"]
+  Documents : 
+    path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummydocuments"
+    extensions: [ ".xlsx", ".txt",".pdf",".docx"]
 
   Uncategorized:
     path: "/home/zeus/Videos/AutoSortDaemon/dummyfolder/dummyUncategorized"

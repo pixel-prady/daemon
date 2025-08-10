@@ -35,6 +35,7 @@ add_executable(autosort_daemon
     src/core/utils/Logger.cpp
     
     src/config/ConfigParser.cpp
+    src/config/DaemonIdManager.cpp
     
     src/main.cpp
 )
