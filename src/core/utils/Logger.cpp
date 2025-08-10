@@ -21,7 +21,7 @@ void Logger::logError(const std::string &message)
 
 void Logger::logWarning(const std::string &message)
 {
-    std::string fullMsg = "[WARNING] " + message = "\n";
+    std::string fullMsg = "[WARNING] " + message + "\n";
     std::cout << fullMsg << std::endl;
     if (backendServer) {
         backendServer->broadcastMessage(fullMsg);

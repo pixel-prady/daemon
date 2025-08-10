@@ -1,25 +1,24 @@
 #include "ConfigParser.hpp"
 #include <fstream>
-#include <iostream>
 #include <yaml-cpp/yaml.h>
 
-ConfigParser::ConfigParser(const std::string &path)
-    : filepath(path) {}
+ConfigParser::ConfigParser(const std::string &path, Logger* loggerInstance)
+    : filepath(path), logger(loggerInstance) {}
 
-bool ConfigParser ::loadConfig()
+bool ConfigParser::loadConfig()
 {
     return parseYaml();
 }
 
-std ::unordered_map<std ::string, std ::pair<std ::string, std ::vector<std ::string>>> ConfigParser ::loadFolderConfig()
+std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> ConfigParser::loadFolderConfig()
 {
-    std ::unordered_map<std ::string, std ::pair<std ::string, std ::vector<std ::string>>> folders;
+    std::unordered_map<std::string, std::pair<std::string, std::vector<std::string>>> folders;
     try
     {
-        YAML ::Node config = YAML::LoadFile(filepath);
+        YAML::Node config = YAML::LoadFile(filepath);
         if (config["folders"])
         {
-            YAML ::Node folderConfig = config["folders"];
+            YAML::Node folderConfig = config["folders"];
             for (YAML::const_iterator itr = folderConfig.begin(); itr != folderConfig.end(); ++itr)
             {
                 std::string category = itr->first.as<std::string>();
@@ -34,11 +33,12 @@ std ::unordered_map<std ::string, std ::pair<std ::string, std ::vector<std ::st
     }
     catch (const YAML::Exception &e)
     {
-        std::cerr << "ERROR LOADING THE FOLDER CONFIGURATIONS" << e.what() << '\n';
+        logger->logError(std::string("ERROR LOADING THE FOLDER CONFIGURATIONS: ") + e.what());
         return folders;
     }
 }
-bool ConfigParser ::parseYaml()
+
+bool ConfigParser::parseYaml()
 {
     try
     {
@@ -60,7 +60,34 @@ bool ConfigParser ::parseYaml()
     }
     catch (const YAML::Exception &e)
     {
-        std::cerr << "Error loading YAML config: " << e.what() << std::endl;
+        logger->logError(std::string("Error loading YAML config: ") + e.what());
+        return false;
+    }
+}
+
+bool ConfigParser ::  updateConfigFile(const std::string& key, const std::string& value) {
+    try {
+        YAML::Node config = YAML::LoadFile(filepath);
+
+        if (key == "cpu_idle_threshold") {
+            config["cpu_idle_threshold"] = std::stoi(value);
+        } else if (key == "watch_path") {
+            config["watch_path"] = value;
+        } else if (key == "segregate_existing_files") {
+            config["segregate_existing_files"] = (value == "true" || value == "1");
+        } else {
+            logger->logWarning("Updating complex keys is not supported right now.");
+            return false;
+        }
+
+        std::ofstream outFile(filepath);
+        outFile << YAML::Dump(config);
+        outFile.close();
+        logger->logInfo("Config updated successfully.");
+
+        return true;
+    } catch (const std::exception& e) {
+        logger->logError(std::string("Failed to update config: ") + e.what());
         return false;
     }
 }
@@ -82,6 +109,5 @@ double ConfigParser::getDouble(const std::string &key, double defaultValue)
 
 bool ConfigParser::getBool(const std::string &key, bool defaultValue)
 {
-    return configData.count(key) ? (configData[key] == "true" || "1"? true : false ): defaultValue;
+    return configData.count(key) ? (configData[key] == "true" || configData[key] == "1" ? true : false) : defaultValue;
 }
-

@@ -37,7 +37,10 @@ target_link_libraries(scheduler_test
     pthread
 )
 
-target_sources(config_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/config/ConfigParser.cpp)
+target_sources(config_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/config/ConfigParser.cpp
+                                    ${PROJECT_SOURCE_DIR}/src/core/utils/Logger.cpp 
+                                    ${PROJECT_SOURCE_DIR}/src/core/LocalBackendServer.cpp
+                                    )
 target_sources(cpuidle_test PRIVATE ${PROJECT_SOURCE_DIR}/src/core/CPUIdleMonitor.cpp)
 target_sources(fileseg_test PRIVATE ${PROJECT_SOURCE_DIR}/src/core/FileSegregator.cpp
                                     ${PROJECT_SOURCE_DIR}/src/core/utils/Logger.cpp 

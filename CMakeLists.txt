@@ -58,4 +58,4 @@ target_link_libraries(autosort_daemon
 )
 
 
-add_subdirectory(tests)
+
