@@ -17,6 +17,9 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/googletest/googlemock/include  
 
     ${PROJECT_SOURCE_DIR}/tests 
+
+    ${PROJECT_SOURCE_DIR}/external/uWebSockets/src
+    ${PROJECT_SOURCE_DIR}/external/uWebSockets/uSockets/src
 )
 
 link_directories(${GTEST_LIB_DIR}) 
@@ -31,11 +34,12 @@ add_executable(autosort_daemon
     src/core/FileSegregator.cpp
     src/core/FileWatcher.cpp
     src/core/Scheduler.cpp
-    
+    src/core/LocalBackendServer.cpp
     src/core/utils/Logger.cpp
     
     src/config/ConfigParser.cpp
     src/config/DaemonIdManager.cpp
+    
     
     src/main.cpp
 )
@@ -43,6 +47,15 @@ add_executable(autosort_daemon
 target_link_libraries(autosort_daemon
     pthread
     yaml-cpp
+
+    # link uSockets static library 
+    ${PROJECT_SOURCE_DIR}/external/uWebSockets/uSockets/uSockets.a
+
+    # add system libraries required by uWebSockets/uSockets
+    z
+    ssl
+    crypto
 )
+
 
 add_subdirectory(tests)

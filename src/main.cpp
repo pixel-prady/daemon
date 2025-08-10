@@ -4,6 +4,7 @@
 #include "Scheduler.hpp"
 #include "Logger.hpp"
 #include "DaemonIdManager.hpp" 
+#include "LocalBackendServer.hpp"
 
 #include <iostream>
 #include <set>
@@ -37,6 +38,9 @@ void runAutoSortDaemon()
     DaemonIdManager daemonIdManager("config/daemon_id.txt");
     std::string daemonId = daemonIdManager.getDaemonId();
     logger.logInfo("Daemon ID: " + daemonId + "\n");
+
+    LocalBackendServer server(daemonId);
+    server.start();
 
     ConfigParser config("config/settings.yaml");
 

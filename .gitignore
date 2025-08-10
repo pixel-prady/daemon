@@ -4,6 +4,11 @@
 /dummyfile
 /watchfolder
 /dummyfolder
+/external 
+
+
+
+
 # Build directories
 build/
 build-*/
