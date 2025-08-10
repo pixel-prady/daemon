@@ -42,6 +42,8 @@ void runAutoSortDaemon()
     LocalBackendServer server(daemonId);
     server.start();
 
+    logger.setBackendServer(&server) ; 
+
     ConfigParser config("config/settings.yaml");
 
     if (!config.loadConfig())

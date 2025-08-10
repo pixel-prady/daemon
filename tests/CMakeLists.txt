@@ -24,7 +24,11 @@ target_link_libraries(fileseg_test
     ${GTEST_LIB_DIR}/libgtest_main.a
     ${GTEST_LIB_DIR}/libgmock.a     
     ${GTEST_LIB_DIR}/libgmock_main.a  
+    ${PROJECT_SOURCE_DIR}/external/uWebSockets/uSockets/uSockets.a
     pthread
+    z
+    ssl
+    crypto
 )
 
 target_link_libraries(scheduler_test
@@ -37,6 +41,7 @@ target_sources(config_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/config/ConfigParse
 target_sources(cpuidle_test PRIVATE ${PROJECT_SOURCE_DIR}/src/core/CPUIdleMonitor.cpp)
 target_sources(fileseg_test PRIVATE ${PROJECT_SOURCE_DIR}/src/core/FileSegregator.cpp
                                     ${PROJECT_SOURCE_DIR}/src/core/utils/Logger.cpp 
+                                    ${PROJECT_SOURCE_DIR}/src/core/LocalBackendServer.cpp
                                     )
 target_sources(scheduler_test PRIVATE ${PROJECT_SOURCE_DIR}/src/core/Scheduler.cpp
                                       ${PROJECT_SOURCE_DIR}/src/core/CPUIdleMonitor.cpp 

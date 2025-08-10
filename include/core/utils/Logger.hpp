@@ -1,15 +1,25 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
-#include <string> 
-class Logger { 
 
-    public : 
+#include <string>
+#include "LocalBackendServer.hpp"
 
-        virtual void logInfo(const std :: string & message ) ; 
-        virtual void logWarning ( const std :: string & message  ) ; 
-        virtual void logError( const std :: string & message ) ; 
-        
-        virtual ~Logger() = default; 
-} ; 
+class Logger
+{
 
-#endif 
+public:
+
+    virtual void logInfo(const std::string &message);
+    virtual void logError(const std::string &message);
+    virtual void logWarning(const std::string &message);
+
+    void setBackendServer(LocalBackendServer *server)
+    {
+        backendServer = server;
+    }
+
+private:
+    LocalBackendServer *backendServer = nullptr;
+};
+
+#endif
