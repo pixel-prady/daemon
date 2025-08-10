@@ -3,6 +3,7 @@
 #include "FileWatcher.hpp"
 #include "Scheduler.hpp"
 #include "Logger.hpp"
+#include "DaemonIdManager.hpp" 
 
 #include <iostream>
 #include <set>
@@ -31,7 +32,11 @@ void segregateFilesIfIdle(FileSegregator& fileSegregator)
 
 void runAutoSortDaemon()
 {
-    Logger logger;  
+    Logger logger; 
+    
+    DaemonIdManager daemonIdManager("config/daemon_id.txt");
+    std::string daemonId = daemonIdManager.getDaemonId();
+    logger.logInfo("Daemon ID: " + daemonId + "\n");
 
     ConfigParser config("config/settings.yaml");
 
@@ -78,7 +83,7 @@ void runAutoSortDaemon()
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
