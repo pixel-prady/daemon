@@ -6,6 +6,10 @@
 /dummyfolder
 /external 
 
+/web/backend/node_modules
+/web/backend/package.json
+/web/backend/package-lock.json
+
 
 
 
