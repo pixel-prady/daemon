@@ -50,7 +50,7 @@ wss.on("connection", (ws) => {
         if (uis) {
           uis.forEach((uiSocket) => {
             if (uiSocket.readyState === WebSocket.OPEN) {
-              uiSocket.send(`error: Daemon ${daemonId} disconnected`);
+              uiSocket.send(` Daemon disconnected plz connect again `);
               uiSocket.close();
             }
           });
