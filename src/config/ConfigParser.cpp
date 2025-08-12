@@ -75,7 +75,9 @@ bool ConfigParser ::  updateConfigFile(const std::string& key, const std::string
             config["watch_path"] = value;
         } else if (key == "segregate_existing_files") {
             config["segregate_existing_files"] = (value == "true" || value == "1");
-        } else {
+        } else if(key == "monitoring_interval") {
+            config["monitoring_interval"] = value; 
+        }else {
             logger->logWarning("Updating complex keys is not supported right now.");
             return false;
         }

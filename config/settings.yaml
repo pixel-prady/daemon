@@ -1,5 +1,6 @@
 cpu_idle_threshold: 25
 watch_path: "/home/zeus/Videos/AutoSortDaemon/watchfolder"
+monitoring_interval: 2000
 segregate_existing_files: true
 
 folders:
