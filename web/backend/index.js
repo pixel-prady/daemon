@@ -1,91 +1,103 @@
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from "ws";
 
-const wss = new WebSocket.Server({ port: 9001 });
-let daemonMap = {};
-let uiClients = [];
+const port = process.env.PORT || 8080;
+const wss = new WebSocketServer({ port });
 
-wss.on('connection', (ws) => {
-    console.log("New connection established.");
 
-    ws.on('message', (message) => {
-        try {
-            const parsedMessage = message.split(':');
-            const command = parsedMessage[0];
-            const data = parsedMessage[1] || '';
+const daemonMap = new Map();
 
-            if (command === 'daemon') {
-                const daemonId = data;
-                if (!daemonId) {
-                    ws.send(JSON.stringify({ error: "Daemon ID is required." }));
-                    ws.close();
-                    return;
-                }
-                daemonMap[daemonId] = ws;
-                console.log(`Daemon ${daemonId} connected.`);
-            } else if (command === 'update') {
-                if (data) {
-                    const [key, value] = data.split('=');
-                    if (key && value) {
-                        console.log(`Updating ${key} with value ${value}`);
-                        ws.send(JSON.stringify({ success: true, message: `Updated ${key} to ${value}` }));
-                    } else {
-                        ws.send(JSON.stringify({ error: "Invalid format. Use update:key=value" }));
-                    }
-                } else {
-                    ws.send(JSON.stringify({ error: "Invalid update command format. Expected 'key=value'" }));
-                }
-            } else if (command === 'ui') {
-                const { daemonId, request } = JSON.parse(data);
-                if (daemonId && daemonMap[daemonId]) {
-                    daemonMap[daemonId].send(request);
-                } else {
-                    ws.send(JSON.stringify({
-                        error: `Daemon ${daemonId} not found.`
-                    }));
-                    ws.close();
-                }
-            } else {
-                ws.send(JSON.stringify({ error: "Unknown command" }));
+const subscriptions = new Map();
+
+const uiDaemonMap = new Map();
+
+console.log(`server started at port ${port}`);
+
+wss.on("connection", (ws) => {
+  ws.once("message", (message) => {
+    const msg = message.toString().trim();
+
+    if (msg.startsWith("daemonId:")) {
+      const parts = msg.split(":");
+      const daemonId = parts[1]?.trim();
+
+      if (!daemonId) {
+        ws.send("error: Daemon ID is required");
+        ws.close();
+        return;
+      }
+
+      daemonMap.set(daemonId, ws);
+      subscriptions.set(daemonId, new Set());
+
+      ws.send(`success: Daemon ${daemonId} registered`);
+      console.log(`Daemon connected: ${daemonId}`);
+
+      ws.on("message", (data) => {
+        const uis = subscriptions.get(daemonId);
+        if (uis) {
+          uis.forEach((uiSocket) => {
+            if (uiSocket.readyState === WebSocket.OPEN) {
+              uiSocket.send(data);
             }
-        } catch (error) {
-            console.error("Error handling message:", error);
-            ws.send(JSON.stringify({ error: "Failed to process the message" }));
+          });
         }
-    });
+      });
 
-    ws.on('close', () => {
-        removeDaemon(ws);
-        removeUIClient(ws);
-        console.log("Connection closed.");
-    });
-});
+      ws.on("close", () => {
+        daemonMap.delete(daemonId);
 
-function removeDaemon(ws) {
-    Object.keys(daemonMap).forEach((daemonId) => {
-        if (daemonMap[daemonId] === ws) {
-            delete daemonMap[daemonId];
-            console.log(`Daemon ${daemonId} disconnected.`);
+        const uis = subscriptions.get(daemonId);
+        if (uis) {
+          uis.forEach((uiSocket) => {
+            if (uiSocket.readyState === WebSocket.OPEN) {
+              uiSocket.send(`error: Daemon ${daemonId} disconnected`);
+              uiSocket.close();
+            }
+          });
+          subscriptions.delete(daemonId);
         }
-    });
-}
+        console.log(`Daemon disconnected: ${daemonId}`);
+      });
+    } else {
+      const daemonId = msg;
 
-function removeUIClient(ws) {
-    uiClients = uiClients.filter(client => client !== ws);
-    console.log("UI client disconnected.");
-}
+      if (!daemonMap.has(daemonId)) {
+        ws.send(`error: Daemon ${daemonId} not found. Please try again later.`);
+        ws.close();
+        return;
+      }
 
-wss.on('connection', (ws) => {
-    uiClients.push(ws);
-    console.log("UI client connected.");
+      if (!subscriptions.has(daemonId)) {
+        subscriptions.set(daemonId, new Set());
+      }
+      subscriptions.get(daemonId).add(ws);
+      uiDaemonMap.set(ws, daemonId);
 
-    ws.on('message', (message) => {
-        console.log('Message from UI:', message);
-    });
+      ws.send(
+        `success: Connected to daemon ${daemonId}. You can now send commands.`
+      );
 
-    ws.on('close', () => {
-        removeUIClient(ws);
-        console.log("UI client disconnected.");
-    });
+      ws.on("message", (data) => {
+        const daemonSocket = daemonMap.get(daemonId);
+
+        if (!daemonSocket || daemonSocket.readyState !== WebSocket.OPEN) {
+          ws.send("error: Daemon disconnected. Closing connection.");
+          ws.close();
+          return;
+        }
+
+        daemonSocket.send(data);
+      });
+
+      ws.on("close", () => {
+        const daemonId = uiDaemonMap.get(ws);
+        uiDaemonMap.delete(ws);
+
+        if (daemonId && subscriptions.has(daemonId)) {
+          subscriptions.get(daemonId).delete(ws);
+          console.log(`UI disconnected from daemon ${daemonId}`);
+        }
+      });
+    }
+  });
 });
-
-console.log("WebSocket server running on ws://localhost:9001");

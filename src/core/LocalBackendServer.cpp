@@ -125,7 +125,7 @@ void LocalBackendServer ::connectToCloud(std :: string cloudUrl)
         {
             std::cout << "[Cloud] Connected to cloud server." << std::endl;
             cloudConnected = true;
-            cloud.send(daemonId);
+            cloud.send("daemonId:"+daemonId);
         }
         else if (msg->type == ix::WebSocketMessageType::Message)
         {
