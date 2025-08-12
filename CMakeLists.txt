@@ -20,6 +20,7 @@ include_directories(
 
     ${PROJECT_SOURCE_DIR}/external/uWebSockets/src
     ${PROJECT_SOURCE_DIR}/external/uWebSockets/uSockets/src
+    ${PROJECT_SOURCE_DIR}/external/IXWebSocket/ixwebsocket
 )
 
 link_directories(${GTEST_LIB_DIR}) 
@@ -50,6 +51,7 @@ target_link_libraries(autosort_daemon
 
     # link uSockets static library 
     ${PROJECT_SOURCE_DIR}/external/uWebSockets/uSockets/uSockets.a
+    ${PROJECT_SOURCE_DIR}/external/IXWebSocket/build/libixwebsocket.a
 
     # add system libraries required by uWebSockets/uSockets
     z

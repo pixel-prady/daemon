@@ -3,7 +3,7 @@
 #include <thread>
 #include <iostream>
 
-LocalBackendServer::LocalBackendServer(const std::string& daemonId_, int port_)
+LocalBackendServer::LocalBackendServer(const std::string &daemonId_, int port_)
     : daemonId(daemonId_), port(port_)
 {
 }
@@ -20,45 +20,53 @@ void LocalBackendServer::start()
 
 void LocalBackendServer::stop()
 {
-    if (serverThread.joinable()) {
+    cloud.stop();
+    if (serverThread.joinable())
+    {
         serverThread.join();
     }
 }
 
-void LocalBackendServer::broadcastMessage(const std::string& message)
+void LocalBackendServer::broadcastMessage(const std::string &message)
 {
     std::lock_guard<std::mutex> lock(clientsMutex);
 
-    for (auto& [client, authenticated] : clients) {
-        if (authenticated) {
-            auto ws = static_cast<uWS::WebSocket<false, true, void>*>(client);
+    for (auto &[client, authenticated] : clients)
+    {
+        if (authenticated)
+        {
+            auto ws = static_cast<uWS::WebSocket<false, true, void> *>(client);
             ws->send(message, uWS::OpCode::TEXT);
         }
     }
+    if (cloudConnected)
+    {
+        cloud.send(message);
+    }
 }
 
-void LocalBackendServer::onCommand(std::function<void(const std::string&, const std::string&)> handler)
+void LocalBackendServer::onCommand(std::function<void(const std::string &, const std::string &)> handler)
 {
     commandHandler = std::move(handler);
 }
-void LocalBackendServer::runServer() {
+void LocalBackendServer::runServer()
+{
 
-    struct PerSocketData {
-        bool authenticated = false;  
+    struct PerSocketData
+    {
+        bool authenticated = false;
     };
 
     uWS::App app;
 
-    app.ws<PerSocketData>("/*", {
-        .open = [this](auto *ws) {
-            
-            std::lock_guard<std::mutex> lock(clientsMutex);
-            clients[static_cast<void*>(ws)] = false;
-            std::cout << "[Server] New client connected. Awaiting authentication...\n";
-            
-        },
+    app.ws<PerSocketData>("/*", {.open = [this](auto *ws)
+                                 {
+                                     std::lock_guard<std::mutex> lock(clientsMutex);
+                                     clients[static_cast<void *>(ws)] = false;
+                                     std::cout << "[Server] New client connected. Awaiting authentication...\n"; },
 
-        .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
+                                 .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode)
+                                 {
             auto *psd = ws->getUserData();
             std::string msg(message);
 
@@ -88,24 +96,64 @@ void LocalBackendServer::runServer() {
                 } else {
                     commandHandler(msg, "");
                 }
-            }
-        },
+            } },
 
-        .close = [this](auto *ws, int , std::string_view ) {
+                                 .close = [this](auto *ws, int, std::string_view)
+                                 {
             
             std::lock_guard<std::mutex> lock(clientsMutex);
             clients.erase(static_cast<void*>(ws));
-            std::cout << "[Server] Client disconnected.\n";
-        }
-    });
+            std::cout << "[Server] Client disconnected.\n"; }});
 
-    app.listen(port, [this](auto *token) {
+    app.listen(port, [this](auto *token)
+               {
         if (token) {
             std::cout << "[Server] Listening on port " << port << std::endl;
         } else {
             std::cerr << "[Server] Failed to listen on port " << port << std::endl;
-        }
-    });
+        } });
 
     app.run();
+}
+
+void LocalBackendServer ::connectToCloud(std :: string cloudUrl) 
+{
+    cloud.setUrl(cloudUrl);
+    cloud.setOnMessageCallback([this](const ix::WebSocketMessagePtr &msg)
+                               {
+         if (msg->type == ix::WebSocketMessageType::Open)
+        {
+            std::cout << "[Cloud] Connected to cloud server." << std::endl;
+            cloudConnected = true;
+            cloud.send(daemonId);
+        }
+        else if (msg->type == ix::WebSocketMessageType::Message)
+        {
+            std::cout << msg->str << std::endl;
+             if (commandHandler) {
+                auto sep = msg->str.find(':');
+                if (sep != std::string::npos) {
+                    auto cmd = msg->str.substr(0, sep);
+                    auto data = msg->str.substr(sep + 1);
+                    commandHandler(cmd, data);
+                } else {
+                    commandHandler(msg->str, "");
+                }
+            }
+            broadcastMessage(msg->str) ; 
+        }
+        else if (msg->type == ix::WebSocketMessageType::Close)
+        {
+            std::cout << "[Cloud] Disconnected from cloud server" << std::endl;
+            std::cout << msg->str << std::endl;
+            cloudConnected = false ; 
+
+
+        }
+        else if (msg->type == ix::WebSocketMessageType::Error)
+        {
+            std::cout << msg->str << std::endl;
+
+        } });
+    cloud.start();
 }

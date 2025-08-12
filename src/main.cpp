@@ -45,6 +45,10 @@ void runAutoSortDaemon()
 
     logger.setBackendServer(&server);
 
+    std :: string cloudUrl = "ws://localhost:8080" ; 
+
+    if ( cloudUrl!="") server.connectToCloud(cloudUrl) ; 
+
     ConfigParser config("config/settings.yaml", &logger);
 
     if (!config.loadConfig())
@@ -113,6 +117,9 @@ void runAutoSortDaemon()
             logger.logInfo("Restart command received.");
             server.broadcastMessage("INFO: Restarting daemon...");
             std::exit(0);
+        }
+        else if( command == "stop"){
+            server.stop() ; 
         }
         else {
             logger.logWarning("Unknown command received: " + command);

@@ -2,6 +2,7 @@
 #define LOCALBACKENDSERVER_HPP
 
 #include <App.h>
+#include <IXWebSocket.h>
 #include <string>
 #include <unordered_map>
 #include <mutex>
@@ -21,6 +22,8 @@ public:
 
     void onCommand(std::function<void(const std::string &command, const std::string &data)> handler);
 
+    void connectToCloud(std :: string cloudUrl);
+     
 private:
     std::string daemonId;
     int port;
@@ -33,6 +36,10 @@ private:
     std::thread serverThread;
 
     void runServer();
+
+    ix :: WebSocket cloud;
+    bool cloudConnected = false ; 
+
 };
 
 #endif
