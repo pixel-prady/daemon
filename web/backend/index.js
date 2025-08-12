@@ -74,7 +74,7 @@ wss.on("connection", (ws) => {
       uiDaemonMap.set(ws, daemonId);
 
       ws.send(
-        `success: Connected to daemon ${daemonId}. You can now send commands.`
+        `success: Connected to daemon ${daemonId}. You can now send commands and see real time logs .`
       );
 
       ws.on("message", (data) => {
